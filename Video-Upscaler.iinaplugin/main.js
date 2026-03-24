@@ -31,7 +31,7 @@
       menu.addItem(menu.separator());
       menu.addItem(
         menu.item("Disable GPU Effects", () => {
-          mpv.command("glsl-shaders-clr");
+          mpv.command("change-list", ["glsl-shaders", "clr", ""]);
           currentMode = "none";
           updateMenu();
         })
@@ -55,14 +55,14 @@
     }
     async function applyShader(mode) {
       if (currentMode === mode) {
-        mpv.command("glsl-shaders-clr");
+        mpv.command("change-list", ["glsl-shaders", "clr", ""]);
         currentMode = "none";
         core.osd("GPU Processing: Disabled");
       } else {
         const ready = await ensureShader(mode);
         if (!ready)
           return;
-        mpv.command("glsl-shaders-set", [SHADERS[mode].local]);
+        mpv.command("change-list", ["glsl-shaders", "set", SHADERS[mode].local]);
         mpv.set("profile", "gpu-hq");
         currentMode = mode;
         core.osd(`GPU ${mode.toUpperCase()}: Enabled`);
