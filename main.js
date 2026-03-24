@@ -1,7 +1,7 @@
 "use strict";
 (() => {
   // src/main.ts
-  var { core, mpv, http, file, sidebar } = iina;
+  var { core, mpv, http, file, sidebar, menu } = iina;
   var PLUGIN_DATA_DIR = "~/Library/Application Support/com.colliderli.iina/plugins/.data/com.github.Fhlisherman.iina-video-upscaler";
   var SHADERS = {
     ["FSRCNNX" /* FSRCNNX */]: {
@@ -31,36 +31,11 @@
   };
   var currentMode = "none";
   try {
-    let updateMenu = function() {
-      menu.removeAllItems();
-      menu.addItem(
-        menu.item(SHADERS["FSRCNNX" /* FSRCNNX */].name, () => applyShader("FSRCNNX" /* FSRCNNX */), {
-          selected: currentMode === "FSRCNNX" /* FSRCNNX */
-        })
-      );
-      menu.addItem(
-        menu.item(SHADERS["Anime4K" /* Anime4K */].name, () => applyShader("Anime4K" /* Anime4K */), {
-          selected: currentMode === "Anime4K" /* Anime4K */
-        })
-      );
-      menu.addItem(
-        menu.item(SHADERS["CAS" /* CAS */].name, () => applyShader("CAS" /* CAS */), {
-          selected: currentMode === "CAS" /* CAS */
-        })
-      );
-      menu.addItem(
-        menu.item(SHADERS["SSimDownscaler" /* SSimDownscaler */].name, () => applyShader("SSimDownscaler" /* SSimDownscaler */), {
-          selected: currentMode === "SSimDownscaler" /* SSimDownscaler */
-        })
-      );
-      menu.addItem(menu.separator());
-      menu.addItem(
-        menu.item("Disable GPU Effects", () => {
-          mpv.command("change-list", ["glsl-shaders", "clr", ""]);
-          currentMode = "none";
-          updateMenu();
-        })
-      );
+    let updateSidebar = function() {
+      try {
+        sidebar.postMessage("update", { currentMode });
+      } catch (e) {
+      }
     };
     updateSidebar2 = updateSidebar;
     async function ensureShader(mode) {
@@ -107,6 +82,11 @@
         applyShader(msg.mode);
       }
     });
+    menu.addItem(
+      menu.item("Open Upscaler Sidebar", () => {
+        sidebar.show();
+      })
+    );
     updateSidebar();
   } catch (error) {
     core.osd(`CRASH: ${error.message || error}`);

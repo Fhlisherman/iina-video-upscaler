@@ -60,7 +60,7 @@ jobs:
         run: echo "VERSION=v$(node -p "require('./package.json').version")" >> $GITHUB_ENV
 
       - name: Package Plugin (.iinaplgz)
-        run: zip Video-Upscaler.iinaplgz main.js Info.json
+        run: zip Video-Upscaler.iinaplgz main.js Info.json sidebar.html
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

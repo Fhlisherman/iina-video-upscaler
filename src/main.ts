@@ -1,6 +1,6 @@
 /// <reference types="iina-plugin-definition" />
 
-const { core, mpv, http, file, sidebar } = iina;
+const { core, mpv, http, file, sidebar, menu } = iina;
 
 interface ShaderConfig {
   url: string;
@@ -102,6 +102,12 @@ try {
       applyShader(msg.mode as ShaderNames);
     }
   });
+
+  menu.addItem(
+    menu.item("Open Sidebar", () => {
+      sidebar.show();
+    })
+  );
 
   updateSidebar();
 } catch (error: any) {
