@@ -48,7 +48,8 @@ try {
       const ready = await ensureShader(mode);
       if (!ready) return;
 
-      mpv.command("change-list", ["glsl-shaders", "set", SHADERS[mode].local]);
+      const absolutePath = file.resolve(SHADERS[mode].local);
+      mpv.command("change-list", ["glsl-shaders", "set", absolutePath]);
       mpv.set("profile", "gpu-hq");
       currentMode = mode;
       core.osd(`GPU ${mode.toUpperCase()}: Enabled`);
