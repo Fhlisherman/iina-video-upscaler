@@ -15,5 +15,8 @@
   ],
   "allowedDomains": [
     "*"
-  ]
+  ],
+  "sidebarTab": {
+    "name": "Video Upscaler"
+  }
 }

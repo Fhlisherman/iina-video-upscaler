@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Video Upscaler Settings</title>
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --text-color: #e0e0e0;
+            --btn-bg: #2d2d2d;
+            --btn-border: #444;
+            --btn-hover: #3a3a3a;
+            --btn-active: #007aff;
+            --desc-color: #999;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --bg-color: #f5f5f5;
+                --text-color: #333;
+                --btn-bg: #ffffff;
+                --btn-border: #d1d1d1;
+                --btn-hover: #e8e8e8;
+                --btn-active: #007aff;
+                --desc-color: #666;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 16px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            box-sizing: border-box;
+        }
+
+        h2 {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0;
+            margin-bottom: 16px;
+            font-weight: 600;
+            color: var(--desc-color);
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        button {
+            background-color: var(--btn-bg);
+            border: 1px solid var(--btn-border);
+            color: var(--text-color);
+            padding: 12px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease-in-out;
+            outline: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        button:hover {
+            background-color: var(--btn-hover);
+        }
+
+        button.active {
+            background-color: var(--btn-active);
+            border-color: var(--btn-active);
+            color: #fff;
+        }
+        
+        button.active .desc {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .label {
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .desc {
+            font-size: 11px;
+            color: var(--desc-color);
+            line-height: 1.4;
+        }
+        
+        hr {
+            border: 0;
+            border-top: 1px solid var(--btn-border);
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <h2>GPU Processing</h2>
+    <div class="container" id="button-container">
+        <!-- Buttons are injected via JS -->
+    </div>
+
+    <script>
+        const buttonsData = [
+            { id: "FSRCNNX", label: "Live Action Specialist", desc: "For 1080p, 720p, or 480p videos (FSRCNNX shader)." },
+            { id: "Anime4K", label: "Animation Specialist", desc: "Optimized for drawings and anime (Anime4K shader)." },
+            { id: "CAS", label: "Text Specialist", desc: "Sharpens screencasts, text, and tutorials (CAS shader)." },
+            { id: "SSimDownscaler", label: "Downscaler", desc: "Improves visual quality when compressing 4K videos." },
+            null, // separator
+            { id: "none", label: "Disable GPU Effects", desc: "Revert to IINA's default high-quality scaler." }
+        ];
+
+        const container = document.getElementById("button-container");
+        const buttonElements = {};
+
+        buttonsData.forEach(data => {
+            if (data === null) {
+                container.appendChild(document.createElement("hr"));
+                return;
+            }
+
+            const btn = document.createElement("button");
+            
+            const labelEl = document.createElement("div");
+            labelEl.className = "label";
+            labelEl.textContent = data.label;
+            
+            const descEl = document.createElement("div");
+            descEl.className = "desc";
+            descEl.textContent = data.desc;
+            
+            btn.appendChild(labelEl);
+            btn.appendChild(descEl);
+            
+            btn.onclick = () => {
+                iina.postMessage("apply", { mode: data.id });
+            };
+            
+            buttonElements[data.id] = btn;
+            container.appendChild(btn);
+        });
+
+        // Listen for updates from the backend plugin
+        iina.onMessage("update", (msg) => {
+            if (msg && msg.currentMode !== undefined) {
+                // Remove active class from all
+                Object.values(buttonElements).forEach(b => b.classList.remove("active"));
+                
+                // Add active class to current
+                if (buttonElements[msg.currentMode]) {
+                    buttonElements[msg.currentMode].classList.add("active");
+                }
+            }
+        });
+    </script>
+</body>
+</html>

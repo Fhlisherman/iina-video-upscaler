@@ -1,6 +1,6 @@
-declare const iina: any;
+/// <reference types="iina-plugin-definition" />
 
-const { menu, core, mpv, http, file } = iina;
+const { core, mpv, http, file, sidebar } = iina;
 
 interface ShaderConfig {
   url: string;
@@ -77,42 +77,33 @@ try {
       currentMode = mode;
       core.osd(`${SHADERS[mode].name}: Enabled`);
     }
-    updateMenu();
+    updateSidebar();
   }
 
-  function updateMenu(): void {
-    menu.removeAllItems();
-    menu.addItem(
-      menu.item(SHADERS[ShaderNames.FSRCNNX].name, () => applyShader(ShaderNames.FSRCNNX), {
-        selected: currentMode === ShaderNames.FSRCNNX,
-      }),
-    );
-    menu.addItem(
-      menu.item(SHADERS[ShaderNames.Anime4K].name, () => applyShader(ShaderNames.Anime4K), {
-        selected: currentMode === ShaderNames.Anime4K,
-      }),
-    );
-    menu.addItem(
-      menu.item(SHADERS[ShaderNames.CAS].name, () => applyShader(ShaderNames.CAS), {
-        selected: currentMode === ShaderNames.CAS,
-      }),
-    );
-    menu.addItem(
-      menu.item(SHADERS[ShaderNames.SSimDownscaler].name, () => applyShader(ShaderNames.SSimDownscaler), {
-        selected: currentMode === ShaderNames.SSimDownscaler,
-      }),
-    );
-    menu.addItem(menu.separator());
-    menu.addItem(
-      menu.item("Disable GPU Effects", () => {
+  function updateSidebar(): void {
+    try {
+      sidebar.postMessage("update", { currentMode });
+    } catch (e) {
+      // Sidebar might not be open yet
+    }
+  }
+
+  sidebar.loadFile("sidebar.html");
+  
+  sidebar.onMessage("apply", (msg: any) => {
+    if (msg.mode === "none") {
+      if (currentMode !== "none") {
         mpv.command("change-list", ["glsl-shaders", "clr", ""]);
         currentMode = "none";
-        updateMenu();
-      }),
-    );
-  }
+        core.osd("GPU Processing: Disabled");
+        updateSidebar();
+      }
+    } else {
+      applyShader(msg.mode as ShaderNames);
+    }
+  });
 
-  updateMenu();
+  updateSidebar();
 } catch (error: any) {
   core.osd(`CRASH: ${error.message || error}`);
   console.error("Plugin crashed:", error);

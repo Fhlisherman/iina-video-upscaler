@@ -9,6 +9,7 @@
   },
   "devDependencies": {
     "esbuild": "^0.20.0",
+    "iina-plugin-definition": "^0.99.3",
     "typescript": "^5.0.0"
   }
 }

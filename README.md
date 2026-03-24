@@ -19,8 +19,8 @@ This plugin seamlessly integrates specialized GLSL shaders (such as `FSRCNNX` fo
 ## Usage
 
 1. Open any video in IINA.
-2. Click on the **Plugins** menu item in your macOS menu bar.
-3. Select **Video Upscaler** and choose your desired mode:
+2. Click on the **Settings/Plugin Sidebar** icon at the bottom right of the video player to open IINA's Sidebar.
+3. Select the **Video Upscaler** tab and choose your desired mode:
    - **Live Action Specialist (FSRCNNX)**: Ideal for significantly sharper visuals when watching 1080p, 720p, or 480p live-action videos on a 4K/1440p monitor.
    - **Animation Specialist (Anime4K)**: Custom-built neural network optimized strictly for drawings, cartoons, and anime to boost sharpness and completely eliminate line blurring.
    - **Text Specialist (CAS)**: Contrast Adaptive Sharpening, highly recommended for screencasts, coding tutorials, or any video where text readability is extremely important.

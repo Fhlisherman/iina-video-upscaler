@@ -1,28 +1,28 @@
 "use strict";
 (() => {
   // src/main.ts
-  var { menu, core, mpv, http, file } = iina;
+  var { core, mpv, http, file, sidebar } = iina;
   var PLUGIN_DATA_DIR = "~/Library/Application Support/com.colliderli.iina/plugins/.data/com.github.Fhlisherman.iina-video-upscaler";
   var SHADERS = {
-    fsrcnnx: {
+    ["FSRCNNX" /* FSRCNNX */]: {
       url: "https://github.com/igv/FSRCNN-TensorFlow/releases/download/1.1/FSRCNNX_x2_8-0-4-1.glsl",
       local: "@data/FSRCNNX.glsl",
       mpvPath: `${PLUGIN_DATA_DIR}/FSRCNNX.glsl`,
       name: "Live Action Specialist (FSRCNNX)"
     },
-    anime4k: {
+    ["Anime4K" /* Anime4K */]: {
       url: "https://raw.githubusercontent.com/bloc97/Anime4K/master/glsl/Upscale/Anime4K_Upscale_CNN_x2_M.glsl",
       local: "@data/Anime4K.glsl",
       mpvPath: `${PLUGIN_DATA_DIR}/Anime4K.glsl`,
       name: "Animation Specialist (Anime4K)"
     },
-    cas: {
+    ["CAS" /* CAS */]: {
       url: "https://gist.githubusercontent.com/agyild/bbb4e58298b2f86aa24da3032a0d2ee6/raw/CAS.glsl",
       local: "@data/CAS.glsl",
       mpvPath: `${PLUGIN_DATA_DIR}/CAS.glsl`,
       name: "Text Specialist (CAS)"
     },
-    downscale: {
+    ["SSimDownscaler" /* SSimDownscaler */]: {
       url: "https://gist.githubusercontent.com/igv/36508af3ffc84410fe39761d6969be10/raw/SSimDownscaler.glsl",
       local: "@data/SSimDownscaler.glsl",
       mpvPath: `${PLUGIN_DATA_DIR}/SSimDownscaler.glsl`,
@@ -31,38 +31,13 @@
   };
   var currentMode = "none";
   try {
-    let updateMenu = function() {
-      menu.removeAllItems();
-      menu.addItem(
-        menu.item(SHADERS.fsrcnnx.name, () => applyShader("fsrcnnx"), {
-          selected: currentMode === "fsrcnnx"
-        })
-      );
-      menu.addItem(
-        menu.item(SHADERS.anime4k.name, () => applyShader("anime4k"), {
-          selected: currentMode === "anime4k"
-        })
-      );
-      menu.addItem(
-        menu.item(SHADERS.cas.name, () => applyShader("cas"), {
-          selected: currentMode === "cas"
-        })
-      );
-      menu.addItem(
-        menu.item(SHADERS.downscale.name, () => applyShader("downscale"), {
-          selected: currentMode === "downscale"
-        })
-      );
-      menu.addItem(menu.separator());
-      menu.addItem(
-        menu.item("Disable GPU Effects", () => {
-          mpv.command("change-list", ["glsl-shaders", "clr", ""]);
-          currentMode = "none";
-          updateMenu();
-        })
-      );
+    let updateSidebar = function() {
+      try {
+        sidebar.postMessage("update", { currentMode });
+      } catch (e) {
+      }
     };
-    updateMenu2 = updateMenu;
+    updateSidebar2 = updateSidebar;
     async function ensureShader(mode) {
       const config = SHADERS[mode];
       if (!file.exists(config.local)) {
@@ -92,12 +67,25 @@
         currentMode = mode;
         core.osd(`${SHADERS[mode].name}: Enabled`);
       }
-      updateMenu();
+      updateSidebar();
     }
-    updateMenu();
+    sidebar.loadFile("sidebar.html");
+    sidebar.onMessage("apply", (msg) => {
+      if (msg.mode === "none") {
+        if (currentMode !== "none") {
+          mpv.command("change-list", ["glsl-shaders", "clr", ""]);
+          currentMode = "none";
+          core.osd("GPU Processing: Disabled");
+          updateSidebar();
+        }
+      } else {
+        applyShader(msg.mode);
+      }
+    });
+    updateSidebar();
   } catch (error) {
     core.osd(`CRASH: ${error.message || error}`);
     console.error("Plugin crashed:", error);
   }
-  var updateMenu2;
+  var updateSidebar2;
 })();
