@@ -31,12 +31,12 @@ const SHADERS: Record<ShaderNames, ShaderConfig> = {
     mpvPath: `${PLUGIN_DATA_DIR}/Anime4K.glsl`,
     name: "Animation Specialist (Anime4K)",
   },
-  [ShaderNames.CAS]: {
-    url: "https://gist.githubusercontent.com/agyild/bbb4e58298b2f86aa24da3032a0d2ee6/raw/CAS.glsl",
-    local: "@data/CAS.glsl",
-    mpvPath: `${PLUGIN_DATA_DIR}/CAS.glsl`,
-    name: "Text Specialist (CAS)",
-  },
+    [ShaderNames.CAS]: {
+      url: "https://gist.githubusercontent.com/agyild/bbb4e58298b2f86aa24da3032a0d2ee6/raw/CAS-scaled.glsl",
+      local: "@data/CAS-scaled.glsl",
+      mpvPath: `${PLUGIN_DATA_DIR}/CAS-scaled.glsl`,
+      name: "Text Specialist (CAS)",
+    },
   [ShaderNames.SSimDownscaler]: {
     url: "https://gist.githubusercontent.com/igv/36508af3ffc84410fe39761d6969be10/raw/SSimDownscaler.glsl",
     local: "@data/SSimDownscaler.glsl",

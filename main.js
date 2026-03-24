@@ -17,9 +17,9 @@
       name: "Animation Specialist (Anime4K)"
     },
     ["CAS" /* CAS */]: {
-      url: "https://gist.githubusercontent.com/agyild/bbb4e58298b2f86aa24da3032a0d2ee6/raw/CAS.glsl",
-      local: "@data/CAS.glsl",
-      mpvPath: `${PLUGIN_DATA_DIR}/CAS.glsl`,
+      url: "https://gist.githubusercontent.com/agyild/bbb4e58298b2f86aa24da3032a0d2ee6/raw/CAS-scaled.glsl",
+      local: "@data/CAS-scaled.glsl",
+      mpvPath: `${PLUGIN_DATA_DIR}/CAS-scaled.glsl`,
       name: "Text Specialist (CAS)"
     },
     ["SSimDownscaler" /* SSimDownscaler */]: {
