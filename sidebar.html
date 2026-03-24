@@ -102,7 +102,6 @@
     <div id="error-log" style="color: #ff4444; font-family: monospace; font-size: 10px; margin-bottom: 10px;"></div>
     <h2>GPU Processing</h2>
     <div class="container" id="button-container">
-        <!-- Buttons are injected via JS -->
     </div>
 
     <script>
@@ -112,8 +111,8 @@
             { id: "Anime4K", label: "Animation Specialist", desc: "Optimized for drawings and anime (Anime4K shader)." },
             { id: "CAS", label: "Text Specialist", desc: "Sharpens screencasts, text, and tutorials (CAS shader)." },
             { id: "SSimDownscaler", label: "Downscaler", desc: "Improves visual quality when compressing 4K videos." },
-            null, // separator
-            { id: "none", label: "Disable GPU Effects", desc: "Revert to IINA's default high-quality scaler." }
+            null,
+            { id: "none", label: "Default IINA Scaler", desc: "Revert to IINA's default high-quality scaler." }
         ];
 
         const container = document.getElementById("button-container");
@@ -146,18 +145,17 @@
             container.appendChild(btn);
         });
 
-        // Listen for updates from the backend plugin
         iina.onMessage("update", (msg) => {
             if (msg && msg.currentMode !== undefined) {
-                // Remove active class from all
                 Object.values(buttonElements).forEach(b => b.classList.remove("active"));
                 
-                // Add active class to current
                 if (buttonElements[msg.currentMode]) {
                     buttonElements[msg.currentMode].classList.add("active");
                 }
             }
         });
+
+        iina.postMessage("ready", {});
       } catch (e) {
           document.getElementById("error-log").innerText = "UI SCRIPTERROR: " + (e.message || e);
       }

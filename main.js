@@ -57,7 +57,7 @@
       if (currentMode === mode) {
         mpv.command("change-list", ["glsl-shaders", "clr", ""]);
         currentMode = "none";
-        core.osd("GPU Processing: Disabled");
+        core.osd("Default IINA Scaler");
       } else {
         const ready = await ensureShader(mode);
         if (!ready)
@@ -71,19 +71,21 @@
     }
     iinaEvent.on("iina.window-loaded", () => {
       sidebar.loadFile("sidebar.html");
+      sidebar.onMessage("ready", () => {
+        updateSidebar();
+      });
       sidebar.onMessage("apply", (msg) => {
         if (msg.mode === "none") {
           if (currentMode !== "none") {
             mpv.command("change-list", ["glsl-shaders", "clr", ""]);
             currentMode = "none";
-            core.osd("GPU Processing: Disabled");
+            core.osd("Default IINA Scaler");
             updateSidebar();
           }
         } else {
           applyShader(msg.mode);
         }
       });
-      updateSidebar();
     });
     menu.addItem(
       menu.item("Open Sidebar", () => {
