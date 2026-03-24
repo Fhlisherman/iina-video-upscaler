@@ -1,6 +1,6 @@
 {
   "name": "iina-video-upscaler",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "GPU-accelerated upscaling for IINA",
   "scripts": {
     "build": "esbuild src/main.ts --bundle --format=iife --outfile=Video-Upscaler.iinaplugin/main.js",
