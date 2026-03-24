@@ -1,9 +1,8 @@
-// sync-version.js
 const fs = require('fs');
 const path = require('path');
 
 const pkg = require('./package.json');
-const infoPath = path.join(__dirname, 'Info.json');
+const infoPath = path.join(__dirname, 'Video-Upscaler.iinaplugin', 'Info.json');
 
 const info = JSON.parse(fs.readFileSync(infoPath, 'utf8'));
 

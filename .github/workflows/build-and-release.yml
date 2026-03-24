@@ -1,4 +1,4 @@
-name: Build and Auto-Increment
+name: Build and Release Plugin
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - 'LICENSE'
 
 jobs:
-  build:
+  build-and-release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -33,16 +33,30 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Increment Version
-        run: |
-          npm version patch -m "chore: bump version to %s [skip ci]"
-
       - name: Run Build
         run: npm run build
 
-      - name: Commit Build Artifacts
+      - name: Increment Version & Tag
         run: |
-          git add main.js
-          git add Info.json
-          git diff --quiet && git diff --staged --quiet || git commit --amend --no-edit
-          git push origin main --follow-tags --force
+          npm version patch -m "chore: bump version to %s [skip ci]"
+
+      - name: Push to GitHub
+        run: git push origin main --follow-tags
+
+      - name: Get New Version
+        id: get_version
+        run: echo "VERSION=v$(node -p "require('./package.json').version")" >> $GITHUB_ENV
+
+      - name: Package Plugin (.iinaplgz)
+        run: |
+          cd Video-Upscaler.iinaplugin
+          zip -r ../Video-Upscaler.iinaplgz *
+          cd ..
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: Release ${{ env.VERSION }}
+          files: Video-Upscaler.iinaplgz
+          generate_release_notes: true
