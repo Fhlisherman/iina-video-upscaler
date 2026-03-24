@@ -9,28 +9,35 @@ interface ShaderConfig {
   name: string;
 }
 
+enum ShaderNames {
+  FSRCNNX = "FSRCNNX",
+  Anime4K = "Anime4K",
+  CAS = "CAS",
+  SSimDownscaler = "SSimDownscaler",
+}
+
 const PLUGIN_DATA_DIR = "~/Library/Application Support/com.colliderli.iina/plugins/.data/com.github.Fhlisherman.iina-video-upscaler";
 
-const SHADERS: Record<string, ShaderConfig> = {
-  fsrcnnx: {
+const SHADERS: Record<ShaderNames, ShaderConfig> = {
+  [ShaderNames.FSRCNNX]: {
     url: "https://github.com/igv/FSRCNN-TensorFlow/releases/download/1.1/FSRCNNX_x2_8-0-4-1.glsl",
     local: "@data/FSRCNNX.glsl",
     mpvPath: `${PLUGIN_DATA_DIR}/FSRCNNX.glsl`,
     name: "Live Action Specialist (FSRCNNX)",
   },
-  anime4k: {
+  [ShaderNames.Anime4K]: {
     url: "https://raw.githubusercontent.com/bloc97/Anime4K/master/glsl/Upscale/Anime4K_Upscale_CNN_x2_M.glsl",
     local: "@data/Anime4K.glsl",
     mpvPath: `${PLUGIN_DATA_DIR}/Anime4K.glsl`,
     name: "Animation Specialist (Anime4K)",
   },
-  cas: {
+  [ShaderNames.CAS]: {
     url: "https://gist.githubusercontent.com/agyild/bbb4e58298b2f86aa24da3032a0d2ee6/raw/CAS.glsl",
     local: "@data/CAS.glsl",
     mpvPath: `${PLUGIN_DATA_DIR}/CAS.glsl`,
     name: "Text Specialist (CAS)",
   },
-  downscale: {
+  [ShaderNames.SSimDownscaler]: {
     url: "https://gist.githubusercontent.com/igv/36508af3ffc84410fe39761d6969be10/raw/SSimDownscaler.glsl",
     local: "@data/SSimDownscaler.glsl",
     mpvPath: `${PLUGIN_DATA_DIR}/SSimDownscaler.glsl`,
@@ -38,10 +45,9 @@ const SHADERS: Record<string, ShaderConfig> = {
   },
 };
 
-type ShaderMode = "fsrcnnx" | "anime4k" | "cas" | "downscale";
-let currentMode: "none" | ShaderMode = "none";
+let currentMode: "none" | ShaderNames = "none";
 try {
-  async function ensureShader(mode: ShaderMode): Promise<boolean> {
+  async function ensureShader(mode: ShaderNames): Promise<boolean> {
     const config = SHADERS[mode];
     if (!file.exists(config.local)) {
       core.osd(`Downloading ${config.name}...`);
@@ -57,7 +63,7 @@ try {
     return true;
   }
 
-  async function applyShader(mode: ShaderMode) {
+  async function applyShader(mode: ShaderNames) {
     if (currentMode === mode) {
       mpv.command("change-list", ["glsl-shaders", "clr", ""]);
       currentMode = "none";
@@ -77,23 +83,23 @@ try {
   function updateMenu(): void {
     menu.removeAllItems();
     menu.addItem(
-      menu.item(SHADERS.fsrcnnx.name, () => applyShader("fsrcnnx"), {
-        selected: currentMode === "fsrcnnx",
+      menu.item(SHADERS[ShaderNames.FSRCNNX].name, () => applyShader(ShaderNames.FSRCNNX), {
+        selected: currentMode === ShaderNames.FSRCNNX,
       }),
     );
     menu.addItem(
-      menu.item(SHADERS.anime4k.name, () => applyShader("anime4k"), {
-        selected: currentMode === "anime4k",
+      menu.item(SHADERS[ShaderNames.Anime4K].name, () => applyShader(ShaderNames.Anime4K), {
+        selected: currentMode === ShaderNames.Anime4K,
       }),
     );
     menu.addItem(
-      menu.item(SHADERS.cas.name, () => applyShader("cas"), {
-        selected: currentMode === "cas",
+      menu.item(SHADERS[ShaderNames.CAS].name, () => applyShader(ShaderNames.CAS), {
+        selected: currentMode === ShaderNames.CAS,
       }),
     );
     menu.addItem(
-      menu.item(SHADERS.downscale.name, () => applyShader("downscale"), {
-        selected: currentMode === "downscale",
+      menu.item(SHADERS[ShaderNames.SSimDownscaler].name, () => applyShader(ShaderNames.SSimDownscaler), {
+        selected: currentMode === ShaderNames.SSimDownscaler,
       }),
     );
     menu.addItem(menu.separator());
