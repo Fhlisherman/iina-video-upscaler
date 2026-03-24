@@ -33,9 +33,24 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Determine Version Bump
+        id: bump
+        run: |
+          MSG="$(git log -1 --pretty=%B)"
+          # Default to patch for chore, fix, refactor, etc.
+          BUMP="patch"
+          # Check for breaking changes (major)
+          if echo "$MSG" | grep -qE "BREAKING CHANGE|^[a-zA-Z]+!:"; then
+            BUMP="major"
+          # Check for new features (minor)
+          elif echo "$MSG" | grep -qE "^feat"; then
+            BUMP="minor"
+          fi
+          echo "level=$BUMP" >> $GITHUB_OUTPUT
+
       - name: Increment Version & Tag
         run: |
-          npm version patch -m "chore: bump version to %s [skip ci]"
+          npm version ${{ steps.bump.outputs.level }} -m "chore: bump version to %s [skip ci]"
 
       - name: Push to GitHub
         run: git push origin main --follow-tags
