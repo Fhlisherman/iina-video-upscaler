@@ -1,7 +1,7 @@
 {
   "name": "Video Upscaler",
   "identifier": "com.github.Fhlisherman.iina-video-upscaler",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Adar Fhlisher",
   "entry": "main.js",
   "ghRepo": "Fhlisherman/iina-video-upscaler",
