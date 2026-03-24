@@ -10,12 +10,12 @@ interface ShaderConfig {
 
 const SHADERS: Record<string, ShaderConfig> = {
   upscale: {
-    url: "https://raw.githubusercontent.com/igv/FSRCNNX-TensorFlow-Precision-fp16/master/shaders/FSRCNNX_x2_8-0-4-1.glsl",
+    url: "https://github.com/igv/FSRCNN-TensorFlow/releases/download/1.1/FSRCNNX_x2_8-0-4-1.glsl",
     local: "@data/FSRCNNX.glsl",
     name: "FSRCNNX Upscaler",
   },
   downscale: {
-    url: "https://raw.githubusercontent.com/igv/SSimDownscaler/master/shaders/SSimDownscaler.glsl",
+    url: "https://gist.githubusercontent.com/igv/36508af3ffc84410fe39761d6969be10/raw/SSimDownscaler.glsl",
     local: "@data/SSimDownscaler.glsl",
     name: "SSim Downscaler",
   },
