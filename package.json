@@ -5,7 +5,7 @@
   "scripts": {
     "build": "esbuild src/main.ts --bundle --format=iife --outfile=Video-Upscaler.iinaplugin/main.js",
     "watch": "npm run build -- --watch",
-    "version": "node sync-version.js && git add Video-Upscaler.iinaplugin/Info.json Video-Upscaler.iinaplugin/main.js"
+    "version": "npm run build && node sync-version.js && git add Video-Upscaler.iinaplugin/main.js Video-Upscaler.iinaplugin/Info.json"
   },
   "devDependencies": {
     "esbuild": "^0.20.0",
