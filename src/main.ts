@@ -57,7 +57,7 @@ try {
   }
 
   function updateMenu(): void {
-    menu.clear();
+    menu.removeAllItems();
     menu.addItem(
       menu.item("Enable GPU Upscale (FSRCNNX)", () => applyShader("upscale"), {
         selected: currentMode === "upscale",
