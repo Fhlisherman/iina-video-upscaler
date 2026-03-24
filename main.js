@@ -16,11 +16,11 @@
       mpvPath: `${PLUGIN_DATA_DIR}/Anime4K.glsl`,
       name: "Animation Specialist (Anime4K)"
     },
-    ["CAS" /* CAS */]: {
-      url: "https://gist.githubusercontent.com/agyild/bbb4e58298b2f86aa24da3032a0d2ee6/raw/CAS-scaled.glsl",
-      local: "@data/CAS-scaled.glsl",
-      mpvPath: `${PLUGIN_DATA_DIR}/CAS-scaled.glsl`,
-      name: "Text Specialist (CAS)"
+    ["FSR" /* FSR */]: {
+      url: "https://gist.githubusercontent.com/agyild/82219c545228d70c5604f865ce0b0ce5/raw/FSR.glsl",
+      local: "@data/FSR.glsl",
+      mpvPath: `${PLUGIN_DATA_DIR}/FSR.glsl`,
+      name: "Text Specialist (FSR)"
     },
     ["SSimDownscaler" /* SSimDownscaler */]: {
       url: "https://gist.githubusercontent.com/igv/36508af3ffc84410fe39761d6969be10/raw/SSimDownscaler.glsl",
