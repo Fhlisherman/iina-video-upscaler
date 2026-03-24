@@ -1,6 +1,7 @@
 {
   "name": "Video Upscaler",
   "identifier": "com.github.Fhlisherman.iina-video-upscaler",
+  "description": "GPU-accelerated upscaling for IINA",
   "version": "0.3.1",
   "author": {
     "name": "Adar Fhlisher"

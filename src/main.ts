@@ -1,6 +1,6 @@
 /// <reference types="iina-plugin-definition" />
 
-const { core, mpv, http, file, sidebar, menu } = iina;
+const { core, mpv, http, file, sidebar, menu, event: iinaEvent } = iina;
 
 interface ShaderConfig {
   url: string;
@@ -88,19 +88,23 @@ try {
     }
   }
 
-  sidebar.loadFile("sidebar.html");
-  
-  sidebar.onMessage("apply", (msg: any) => {
-    if (msg.mode === "none") {
-      if (currentMode !== "none") {
-        mpv.command("change-list", ["glsl-shaders", "clr", ""]);
-        currentMode = "none";
-        core.osd("GPU Processing: Disabled");
-        updateSidebar();
+  iinaEvent.on("iina.window-loaded", () => {
+    sidebar.loadFile("sidebar.html");
+    
+    sidebar.onMessage("apply", (msg: any) => {
+      if (msg.mode === "none") {
+        if (currentMode !== "none") {
+          mpv.command("change-list", ["glsl-shaders", "clr", ""]);
+          currentMode = "none";
+          core.osd("GPU Processing: Disabled");
+          updateSidebar();
+        }
+      } else {
+        applyShader(msg.mode as ShaderNames);
       }
-    } else {
-      applyShader(msg.mode as ShaderNames);
-    }
+    });
+
+    updateSidebar();
   });
 
   menu.addItem(
@@ -108,8 +112,6 @@ try {
       sidebar.show();
     })
   );
-
-  updateSidebar();
 } catch (error: any) {
   core.osd(`CRASH: ${error.message || error}`);
   console.error("Plugin crashed:", error);

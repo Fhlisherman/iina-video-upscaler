@@ -1,7 +1,7 @@
 "use strict";
 (() => {
   // src/main.ts
-  var { core, mpv, http, file, sidebar, menu } = iina;
+  var { core, mpv, http, file, sidebar, menu, event: iinaEvent } = iina;
   var PLUGIN_DATA_DIR = "~/Library/Application Support/com.colliderli.iina/plugins/.data/com.github.Fhlisherman.iina-video-upscaler";
   var SHADERS = {
     ["FSRCNNX" /* FSRCNNX */]: {
@@ -69,25 +69,27 @@
       }
       updateSidebar();
     }
-    sidebar.loadFile("sidebar.html");
-    sidebar.onMessage("apply", (msg) => {
-      if (msg.mode === "none") {
-        if (currentMode !== "none") {
-          mpv.command("change-list", ["glsl-shaders", "clr", ""]);
-          currentMode = "none";
-          core.osd("GPU Processing: Disabled");
-          updateSidebar();
+    iinaEvent.on("iina.window-loaded", () => {
+      sidebar.loadFile("sidebar.html");
+      sidebar.onMessage("apply", (msg) => {
+        if (msg.mode === "none") {
+          if (currentMode !== "none") {
+            mpv.command("change-list", ["glsl-shaders", "clr", ""]);
+            currentMode = "none";
+            core.osd("GPU Processing: Disabled");
+            updateSidebar();
+          }
+        } else {
+          applyShader(msg.mode);
         }
-      } else {
-        applyShader(msg.mode);
-      }
+      });
+      updateSidebar();
     });
     menu.addItem(
       menu.item("Open Sidebar", () => {
         sidebar.show();
       })
     );
-    updateSidebar();
   } catch (error) {
     core.osd(`CRASH: ${error.message || error}`);
     console.error("Plugin crashed:", error);

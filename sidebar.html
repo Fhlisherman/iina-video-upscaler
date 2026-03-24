@@ -99,12 +99,14 @@
     </style>
 </head>
 <body>
+    <div id="error-log" style="color: #ff4444; font-family: monospace; font-size: 10px; margin-bottom: 10px;"></div>
     <h2>GPU Processing</h2>
     <div class="container" id="button-container">
         <!-- Buttons are injected via JS -->
     </div>
 
     <script>
+      try {
         const buttonsData = [
             { id: "FSRCNNX", label: "Live Action Specialist", desc: "For 1080p, 720p, or 480p videos (FSRCNNX shader)." },
             { id: "Anime4K", label: "Animation Specialist", desc: "Optimized for drawings and anime (Anime4K shader)." },
@@ -156,6 +158,9 @@
                 }
             }
         });
+      } catch (e) {
+          document.getElementById("error-log").innerText = "UI SCRIPTERROR: " + (e.message || e);
+      }
     </script>
 </body>
 </html>
