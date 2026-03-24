@@ -3,9 +3,9 @@
   "version": "0.1.9",
   "description": "GPU-accelerated upscaling for IINA",
   "scripts": {
-    "build": "esbuild src/main.ts --bundle --format=iife --outfile=Video-Upscaler.iinaplugin/main.js",
+    "build": "esbuild src/main.ts --bundle --format=iife --outfile=main.js",
     "watch": "npm run build -- --watch",
-    "version": "npm run build && node sync-version.js && git add Video-Upscaler.iinaplugin/main.js Video-Upscaler.iinaplugin/Info.json"
+    "version": "npm run build && node sync-version.js && git add main.js Info.json"
   },
   "devDependencies": {
     "esbuild": "^0.20.0",

@@ -7,7 +7,7 @@
   },
   "entry": "main.js",
   "ghRepo": "Fhlisherman/iina-video-upscaler",
-  "ghVersion": 9,
+  "ghVersion": 10,
   "permissions": [
     "show-osd",
     "network-request",
