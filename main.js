@@ -26,7 +26,7 @@
       url: "https://gist.githubusercontent.com/igv/36508af3ffc84410fe39761d6969be10/raw/SSimDownscaler.glsl",
       local: "@data/SSimDownscaler.glsl",
       mpvPath: `${PLUGIN_DATA_DIR}/SSimDownscaler.glsl`,
-      name: "High-Quality Downscaler (SSim)"
+      name: "Downscaler (SSim)"
     }
   };
   var currentMode = "none";
