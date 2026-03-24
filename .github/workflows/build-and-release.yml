@@ -1,0 +1,48 @@
+name: Build and Auto-Increment
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Setup Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Increment Version
+        run: |
+          npm version patch -m "chore: bump version to %s [skip ci]"
+
+      - name: Run Build
+        run: npm run build
+
+      - name: Commit Build Artifacts
+        run: |
+          git add Video-Upscaler.iinaplugin/main.js
+          git add Video-Upscaler.iinaplugin/Info.json
+          git diff --quiet && git diff --staged --quiet || git commit --amend --no-edit
+          git push origin main --follow-tags --force

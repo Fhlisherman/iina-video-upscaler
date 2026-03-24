@@ -1,0 +1,8 @@
+{
+  "name": "Video Upscaler",
+  "identifier": "com.github.Fhlisherman.iina-video-upscaler",
+  "version": "0.1.0",
+  "author": "Adar Fhlisher",
+  "entry": "main.js",
+  "permissions": ["show-osd", "network-request", "file-system"]
+}
