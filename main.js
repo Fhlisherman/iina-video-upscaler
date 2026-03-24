@@ -83,7 +83,7 @@
       }
     });
     menu.addItem(
-      menu.item("Open Upscaler Sidebar", () => {
+      menu.item("Open Sidebar", () => {
         sidebar.show();
       })
     );
