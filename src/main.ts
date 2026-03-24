@@ -5,18 +5,23 @@ const { menu, core, mpv, http, file } = iina;
 interface ShaderConfig {
   url: string;
   local: string;
+  mpvPath: string;
   name: string;
 }
+
+const PLUGIN_DATA_DIR = "~/Library/Application Support/com.colliderli.iina/plugins/.data/com.github.Fhlisherman.iina-video-upscaler";
 
 const SHADERS: Record<string, ShaderConfig> = {
   upscale: {
     url: "https://github.com/igv/FSRCNN-TensorFlow/releases/download/1.1/FSRCNNX_x2_8-0-4-1.glsl",
     local: "@data/FSRCNNX.glsl",
+    mpvPath: `${PLUGIN_DATA_DIR}/FSRCNNX.glsl`,
     name: "FSRCNNX Upscaler",
   },
   downscale: {
     url: "https://gist.githubusercontent.com/igv/36508af3ffc84410fe39761d6969be10/raw/SSimDownscaler.glsl",
     local: "@data/SSimDownscaler.glsl",
+    mpvPath: `${PLUGIN_DATA_DIR}/SSimDownscaler.glsl`,
     name: "SSim Downscaler",
   },
 };
@@ -48,8 +53,7 @@ try {
       const ready = await ensureShader(mode);
       if (!ready) return;
 
-      const absolutePath = file.resolve(SHADERS[mode].local);
-      mpv.command("change-list", ["glsl-shaders", "set", absolutePath]);
+      mpv.command("change-list", ["glsl-shaders", "set", SHADERS[mode].mpvPath]);
       mpv.set("profile", "gpu-hq");
       currentMode = mode;
       core.osd(`GPU ${mode.toUpperCase()}: Enabled`);
