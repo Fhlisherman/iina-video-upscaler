@@ -42,7 +42,7 @@ jobs:
 
       - name: Commit Build Artifacts
         run: |
-          git add Video-Upscaler.iinaplugin/main.js
-          git add Video-Upscaler.iinaplugin/Info.json
+          git add main.js
+          git add Info.json
           git diff --quiet && git diff --staged --quiet || git commit --amend --no-edit
           git push origin main --follow-tags --force
