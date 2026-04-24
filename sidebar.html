@@ -48,6 +48,7 @@
         .container {
             display: flex;
             flex-direction: column;
+            margin-bottom: 0.5em;
             gap: 12px;
         }
 
@@ -101,7 +102,13 @@
 <body>
     <div id="error-log" style="color: #ff4444; font-family: monospace; font-size: 10px; margin-bottom: 10px;"></div>
     <h2>GPU Processing</h2>
-    <div class="container" id="button-container">
+    <div class="container" id="button-container"></div>
+    <h2 class="section-title">Enhancements</h2>
+    <div class="container">
+        <button id="btn-denoise">
+            <div class="label">Bilateral Denoiser</div>
+            <div class="desc">Reduces noise and grain. Runs before upscaling.</div>
+        </button>
     </div>
 
     <script>
@@ -145,12 +152,28 @@
             container.appendChild(btn);
         });
 
+        container.appendChild(document.createElement("hr"));
+
+       const denoiseBtn = document.getElementById("btn-denoise");
+        denoiseBtn.onclick = () => {
+            iina.postMessage("toggleDenoiser", {});
+        };
+
         iina.onMessage("update", (msg) => {
-            if (msg && msg.currentMode !== undefined) {
-                Object.values(buttonElements).forEach(b => b.classList.remove("active"));
+            if (msg) {
+                if (msg.currentMode !== undefined) {
+                    Object.values(buttonElements).forEach(b => b.classList.remove("active"));
+                    if (buttonElements[msg.currentMode]) {
+                        buttonElements[msg.currentMode].classList.add("active");
+                    }
+                }
                 
-                if (buttonElements[msg.currentMode]) {
-                    buttonElements[msg.currentMode].classList.add("active");
+                if (msg.denoiserEnabled !== undefined) {
+                    if (msg.denoiserEnabled) {
+                        denoiseBtn.classList.add("active");
+                    } else {
+                        denoiseBtn.classList.remove("active");
+                    }
                 }
             }
         });
