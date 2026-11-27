@@ -42,8 +42,52 @@
   };
   var state = {
     mode: "none",
-    denoiserEnabled: false
+    denoiserEnabled: false,
+    upscalingRequired: false,
+    scalingInfo: null
   };
+  var scalingUpdateTimer = null;
+  var applyRevision = 0;
+  function getScalingInfo() {
+    const videoWidth = core.status.videoWidth;
+    const videoHeight = core.status.videoHeight;
+    const viewportWidth = mpv.getNumber("osd-width");
+    const viewportHeight = mpv.getNumber("osd-height");
+    if (!videoWidth || !videoHeight || !Number.isFinite(videoWidth) || !Number.isFinite(videoHeight) || !Number.isFinite(viewportWidth) || !Number.isFinite(viewportHeight) || viewportWidth <= 0 || viewportHeight <= 0) {
+      return null;
+    }
+    const scale = Math.min(viewportWidth / videoWidth, viewportHeight / videoHeight);
+    return {
+      videoWidth,
+      videoHeight,
+      viewportWidth,
+      viewportHeight,
+      shouldUpscale: scale > 1
+    };
+  }
+  function updateScalingStatus() {
+    const scalingInfo = getScalingInfo();
+    const upscalingRequired = scalingInfo?.shouldUpscale ?? false;
+    const changed = state.upscalingRequired !== upscalingRequired;
+    state.upscalingRequired = upscalingRequired;
+    state.scalingInfo = scalingInfo;
+    updateSidebar();
+    return changed;
+  }
+  function scheduleScalingUpdate() {
+    if (scalingUpdateTimer)
+      clearTimeout(scalingUpdateTimer);
+    scalingUpdateTimer = setTimeout(() => {
+      scalingUpdateTimer = null;
+      try {
+        if (updateScalingStatus()) {
+          applyShaders(false);
+        }
+      } catch (error) {
+        console.error("Failed to detect video scaling requirements:", error);
+      }
+    }, 100);
+  }
   async function ensureShader(mode) {
     const config = SHADERS[mode];
     if (file.exists(config.local))
@@ -58,20 +102,27 @@
       return false;
     }
   }
-  async function applyShaders() {
+  async function applyShaders(showOSD = true) {
+    const revision = ++applyRevision;
     try {
+      updateScalingStatus();
       mpv.command("change-list", ["glsl-shaders", "clr", ""]);
       mpv.set("dscale", "hermite");
       mpv.set("linear-downscaling", "yes");
       mpv.set("profile", "default");
       const activeNames = [];
       if (state.mode === "SSimDownscaler" /* SSimDownscaler */) {
-        if (await ensureShader("SSimDownscaler" /* SSimDownscaler */)) {
+        const available = await ensureShader("SSimDownscaler" /* SSimDownscaler */);
+        if (revision !== applyRevision)
+          return;
+        if (available) {
           mpv.command("change-list", ["glsl-shaders", "append", SHADERS["SSimDownscaler" /* SSimDownscaler */].mpvPath]);
           mpv.set("dscale", "mitchell");
           mpv.set("linear-downscaling", "no");
-          const msg = state.denoiserEnabled ? "Downscaler Active (Denoiser Ignored)" : "Downscaler Active";
-          core.osd(msg);
+          if (showOSD) {
+            const msg = state.denoiserEnabled ? "Downscaler Active (Denoiser Ignored)" : "Downscaler Active";
+            core.osd(msg);
+          }
         } else {
           state.mode = "none";
         }
@@ -79,7 +130,10 @@
         return;
       }
       if (state.denoiserEnabled) {
-        if (await ensureShader("Denoise" /* Denoise */)) {
+        const available = await ensureShader("Denoise" /* Denoise */);
+        if (revision !== applyRevision)
+          return;
+        if (available) {
           const denoisePath = SHADERS["Denoise" /* Denoise */].mpvPath;
           mpv.command("change-list", ["glsl-shaders", "append", denoisePath]);
           mpv.command("change-list", ["glsl-shaders", "append", denoisePath]);
@@ -89,19 +143,27 @@
           state.denoiserEnabled = false;
         }
       }
-      if (state.mode !== "none") {
-        if (await ensureShader(state.mode)) {
-          mpv.command("change-list", ["glsl-shaders", "append", SHADERS[state.mode].mpvPath]);
+      if (state.mode !== "none" && state.upscalingRequired) {
+        const mode = state.mode;
+        const available = await ensureShader(mode);
+        if (revision !== applyRevision)
+          return;
+        if (available) {
+          mpv.command("change-list", ["glsl-shaders", "append", SHADERS[mode].mpvPath]);
           mpv.set("profile", "gpu-hq");
-          activeNames.push(SHADERS[state.mode].shortName);
+          activeNames.push(SHADERS[mode].shortName);
         } else {
           state.mode = "none";
         }
       }
-      if (activeNames.length > 0) {
-        core.osd(`${activeNames.join(" + ")}: Active`);
-      } else {
-        core.osd("Default IINA Scaler");
+      if (showOSD) {
+        if (activeNames.length > 0 && state.upscalingRequired && state.mode !== "none") {
+          core.osd(`${activeNames.join(" + ")}: Active`);
+        } else if (activeNames.length > 0) {
+          core.osd(`${activeNames.join(" + ")} + Default IINA Scaler`);
+        } else {
+          core.osd("Default IINA Scaler");
+        }
       }
       updateSidebar();
     } catch (error) {
@@ -113,7 +175,9 @@
     try {
       sidebar.postMessage("update", {
         currentMode: state.mode,
-        denoiserEnabled: state.denoiserEnabled
+        denoiserEnabled: state.denoiserEnabled,
+        upscalingRequired: state.upscalingRequired,
+        scalingInfo: state.scalingInfo
       });
     } catch (e) {
     }
@@ -121,6 +185,16 @@
   function initializePlugin() {
     iinaEvent.on("iina.window-loaded", () => {
       sidebar.loadFile("sidebar.html");
+      scheduleScalingUpdate();
+      iinaEvent.on("iina.file-loaded", scheduleScalingUpdate);
+      iinaEvent.on("iina.file-started", scheduleScalingUpdate);
+      iinaEvent.on("iina.window-resized", scheduleScalingUpdate);
+      iinaEvent.on("iina.window-size-adjusted", scheduleScalingUpdate);
+      iinaEvent.on("iina.window-fs.changed", scheduleScalingUpdate);
+      iinaEvent.on("iina.window-screen.changed", scheduleScalingUpdate);
+      iinaEvent.on("mpv.video-params.changed", scheduleScalingUpdate);
+      iinaEvent.on("mpv.osd-width.changed", scheduleScalingUpdate);
+      iinaEvent.on("mpv.osd-height.changed", scheduleScalingUpdate);
       sidebar.onMessage("ready", () => {
         updateSidebar();
       });
