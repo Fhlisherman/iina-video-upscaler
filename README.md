@@ -27,6 +27,8 @@ This plugin seamlessly integrates specialized GLSL shaders (such as `FSRCNNX` fo
    - **Downscaler (SSim)**: Optimizes visual quality when shrinking a high-resolution 4K video down to a smaller player window or screen.
    - **Disable GPU Effects**: Immediately disables the custom shaders and reverts to IINA's default high-quality scaler.
 
+   The plugin compares the video's dimensions with the displayed video viewport. The selected upscaler is enabled only when the video must be enlarged; otherwise IINA's default scaler is used. It rechecks automatically when the video or viewport changes. The downscaler and denoiser remain separately controlled.
+
 *Note: You may see a temporary on-screen display (OSD) verifying the shader is downloading prior to its very first initialization. Subsequent uses will load it instantly.*
 
 ## Requirements

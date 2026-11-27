@@ -91,6 +91,13 @@
             color: var(--desc-color);
             line-height: 1.4;
         }
+
+        #scaler-status {
+            font-size: 11px;
+            color: var(--desc-color);
+            line-height: 1.4;
+            margin: -4px 0 12px;
+        }
         
         hr {
             border: 0;
@@ -102,6 +109,7 @@
 <body>
     <div id="error-log" style="color: #ff4444; font-family: monospace; font-size: 10px; margin-bottom: 10px;"></div>
     <h2>GPU Processing</h2>
+    <div id="scaler-status" role="status">Waiting for video dimensions...</div>
     <div class="container" id="button-container"></div>
     <h2 class="section-title">Enhancements</h2>
     <div class="container">
@@ -114,9 +122,9 @@
     <script>
       try {
         const buttonsData = [
-            { id: "FSRCNNX", label: "Live Action Specialist", desc: "For 1080p, 720p, or 480p videos (FSRCNNX shader)." },
-            { id: "Anime4K", label: "Animation Specialist", desc: "Optimized for drawings and anime (Anime4K shader)." },
-            { id: "FSR", label: "Text Specialist", desc: "Sharpens screencasts, text, and tutorials (FSR1 shader)." },
+            { id: "FSRCNNX", label: "Live Action Specialist", desc: "For live-action video. Used only when the viewport requires upscaling." },
+            { id: "Anime4K", label: "Animation Specialist", desc: "Optimized for drawings and anime; used only when upscaling is needed." },
+            { id: "FSR", label: "Text Specialist", desc: "Sharpens screencasts, text, and tutorials when upscaling is needed." },
             { id: "SSimDownscaler", label: "Downscaler", desc: "Improves visual quality when compressing 4K videos." },
             null,
             { id: "none", label: "Default IINA Scaler", desc: "Revert to IINA's default high-quality scaler." }
@@ -174,6 +182,22 @@
                     } else {
                         denoiseBtn.classList.remove("active");
                     }
+                }
+
+                const scalerStatus = document.getElementById("scaler-status");
+                if (msg.scalingInfo) {
+                    const { videoWidth, videoHeight, viewportWidth, viewportHeight } = msg.scalingInfo;
+                    const selectedUpscalerIsActive = msg.currentMode !== "none" &&
+                        msg.currentMode !== "SSimDownscaler" && msg.upscalingRequired;
+                    const scaler = selectedUpscalerIsActive
+                        ? `${msg.currentMode} active`
+                        : msg.currentMode === "SSimDownscaler"
+                            ? "SSim downscaler active"
+                            : "Default IINA Scaler";
+                    scalerStatus.textContent =
+                        `Video ${videoWidth}×${videoHeight} · Viewport ${viewportWidth}×${viewportHeight} · ${scaler}`;
+                } else {
+                    scalerStatus.textContent = "Waiting for video dimensions...";
                 }
             }
         });
